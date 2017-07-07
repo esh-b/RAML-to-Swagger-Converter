@@ -11,6 +11,7 @@ For more info on swagger definitions, [Click here](https://swagger.io/docs/). Fo
 * Finally, run the MainProgram.java which will create a new file containing the Swagger 2.0 definition for the given RAML source file. The destionation file name is the same name as RAML file but with .json extension.
 
 ## Todos
+* This project currently supports only conversion of RAML v0.8 (RAML 1.0 parser is not yet available as of now). The support for RAML 1.0 conversion to Swagger 2.0 has to be made once RAML 1.0 parser is available.
 * Almost all the edge cases (rarely used definition fields in API definition) are taken care of. But incase something is missed out, please raise an issue.
 
 #### Footnotes
