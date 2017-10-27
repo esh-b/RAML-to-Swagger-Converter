@@ -222,7 +222,7 @@ class RAMLtoSwagger implements Constants {
             if (propObj != null) {
                 Iterator<?> keys = propObj.keys();
                 while (keys.hasNext()) {
-                    String key = (String) keys.next();
+                    String key = keys.next().toString();
                     JSONObject obj = new JSONObject(propObj.getString(key));
                     if (obj.has("required")) {
                         if (obj.getString("required").equals("true")) {
@@ -263,10 +263,7 @@ class RAMLtoSwagger implements Constants {
 
                 if (me.getValue().getType().equals(OAUTH2_RAML)) {
                     //Get all te setting key value pairs
-                    HashMap<String, Object> map = new HashMap<>();
-                    for (Map.Entry<String, List<String>> settings : me.getValue().getSettings().entrySet()) {
-                        map.put(settings.getKey(), settings.getValue());
-                    }
+                    HashMap<String, Object> map = new HashMap<>(me.getValue().getSettings());
 
                     List<String> authGrants = (List<String>) map.get("authorizationGrants");
                     for (String s : authGrants) {
