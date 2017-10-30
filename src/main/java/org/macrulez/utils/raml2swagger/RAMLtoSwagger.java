@@ -137,6 +137,7 @@ class RAMLtoSwagger implements Constants {
             info.put(API_VERSION_PARAM_KEY, raml.getVersion());
 
         if (raml.getDocumentation() != null) {
+            /* Uses stream API to create a single property from the documentation entries */
             info.put(DESCRIPTION_PARAM_KEY, raml.getDocumentation().stream().map(i -> i.getTitle() + " - " + i.getContent()).collect(Collectors.joining(" | ")));
         }
 
@@ -153,6 +154,12 @@ class RAMLtoSwagger implements Constants {
 
         //Incase the schemes is mentioned in the RAML, use it. Else parse it from the API URL
         if (raml.getProtocols().size() > 0) {
+            /* Uses Java8 stream API to convert things to lower case and return them as List
+             * Stream api should be read left-to-right
+             * .map() -> takes a lambda function for each element
+             *   the inside lambda function then calls toString().toLowerCase() on each element (p)
+             * .collect() -> the result is then collected as List
+             */
             swaggerJSON.put(SCHEMES_PARAM_KEY, raml.getProtocols().stream().map(p -> p.toString().toLowerCase()).collect(Collectors.toList()));
         } else {
             if (url != null) swaggerJSON.put(SCHEMES_PARAM_KEY, Collections.singletonList(url.getProtocol()));
