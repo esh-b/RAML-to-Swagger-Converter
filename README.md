@@ -4,11 +4,16 @@
 This repository contains a java project that converts RAML v0.8 API definition to Swagger v2.0 definition. 
 For more info on swagger definitions, [Click here](https://swagger.io/docs/). For RAML docs, [Click here](https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md)
 
-## Steps to run the project
+## Steps to run the utility
 * Download and install Apache Maven (https://maven.apache.org)
-* In the project directory issue `mvn package` which will build the application in the `target` folder
+* In the project directory issue `mvn package` which will build the application in the `raml2swagger-app/target` folder
 * Run the application with `java - jar target/raml2swagger-{version}-jar-with-dependencies.jar <input file>` 
 * An example is provided in the example directory which will convert jukebox-api.raml (RAML 0.8) to jukebox-api.json (Swagger 2.0).
+
+## Steps to use the project as a library
+* Download and install Apache Maven (https://maven.apache.org)
+* In the project directory issue `mvn install` which will build the application and library
+* Add the dependency into your POM or use the built library in your project. The library JAR is in `raml2swagger-lib/target`.
 
 ## Todos
 * This project currently supports only conversion of RAML v0.8 (RAML 1.0 parser library is not yet available for java as of now). The support for RAML 1.0 conversion to Swagger 2.0 has to be made once RAML 1.0 parser is available.
