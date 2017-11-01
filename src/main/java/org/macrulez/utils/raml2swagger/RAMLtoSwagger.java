@@ -34,6 +34,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -521,39 +522,11 @@ class RAMLtoSwagger implements Constants {
         return prodArr.length() > 0 ? prodArr : null;
     }
 
-    //Get all the path(URI) parameters for a specific method
-    private void getPathParams(Map<String, UriParameter> uriParams, JSONObject parameters)
-            throws JSONException {
-
-        JSONArray jsonArray = new JSONArray();
-        for (Map.Entry<String, UriParameter> me : uriParams.entrySet()) {
-
-            HashMap<String, Object> values = new HashMap<>();
-            values.put(NAME_MAP_KEY, me.getKey());
-            values.put(DEFVALUE_MAP_KEY, me.getValue().getDefaultValue());
-            values.put(DESC_MAP_KEY, me.getValue().getDescription());
-            values.put(ISREQD_MAP_KEY, Boolean.TRUE);
-            values.put(TYPE_MAP_KEY, me.getValue().getType().toString());
-            values.put(ENUM_MAP_KEY, me.getValue().getEnumeration());
-            values.put(MAX_MAP_KEY, me.getValue().getMaximum());
-            values.put(MIN_MAP_KEY, me.getValue().getMinimum());
-            values.put(MAXLEN_MAP_KEY, me.getValue().getMaxLength());
-            values.put(MINLEN_MAP_KEY, me.getValue().getMinLength());
-            values.put(EXAMPLE_MAP_KEY, me.getValue().getExample());
-            values.put(PATTERN_MAP_KEY, me.getValue().getPattern());
-            values.put(REPEAT_MAP_KEY, me.getValue().isRepeat());
-            values.put(PARAMTYPE_MAP_KEY, PARAMTYPE_PATH);
-
-            JSONObject params = getParametersInfo(values);
-            jsonArray.put(params);
-        }
-
-        if (jsonArray.length() > 0) {
-            parameters.put("parameters", jsonArray);
-        }
-    }
-
-    private <T extends AbstractParam> void getParams(Collection<JSONObject> parameters, Set<Map.Entry<String, T>> entries) throws JSONException {
+    // Generic function processing various parameters from RAML. All of them are subclasses of AbstractParam, so a
+    // safe generalization can be made. The target collection/store is done using functional programing principles by
+    // passing in the storing function. Later on lambda expressions or simple function references can be used in an
+    // elegant way.
+    private <T extends AbstractParam> void getParams(Set<Map.Entry<String, T>> entries, Consumer<JSONObject> store) throws JSONException {
         for (Map.Entry<String, T> entry : entries) {
 
             HashMap<String, Object> values = new HashMap<>();
@@ -572,8 +545,23 @@ class RAMLtoSwagger implements Constants {
             values.put(REPEAT_MAP_KEY, entry.getValue().isRepeat());
             values.put(PARAMTYPE_MAP_KEY, PARAMTYPE_HEADER);
 
-            JSONObject params = getParametersInfo(values);
-            parameters.add(params);
+            // Calling the passed in store function. Note that not a structure is passed in, but a function. See
+            // functional programing principles in Java.
+            store.accept(getParametersInfo(values));
+        }
+    }
+
+    // ---- The below code are the simplified version of their former implementation removing 3-times code duplication
+
+    //Get all the path(URI) parameters for a specific method
+    private void getPathParams(Map<String, UriParameter> uriParams, JSONObject parameters)
+            throws JSONException {
+
+        JSONArray jsonArray = new JSONArray();
+        getParams(uriParams.entrySet(), jsonArray::put);
+
+        if (jsonArray.length() > 0) {
+            parameters.put("parameters", jsonArray);
         }
     }
 
@@ -581,14 +569,14 @@ class RAMLtoSwagger implements Constants {
     private void getHeaderParams(Map.Entry<ActionType, Action> action, Collection<JSONObject> parameters)
             throws JSONException {
 
-        getParams(parameters, action.getValue().getHeaders().entrySet());
+        getParams(action.getValue().getHeaders().entrySet(), parameters::add);
     }
 
     //Get all the query params for a specific method
     private void getQueryParams(Map.Entry<ActionType, Action> action, Collection<JSONObject> parameters)
             throws JSONException {
 
-        getParams(parameters, action.getValue().getQueryParameters().entrySet());
+        getParams(action.getValue().getQueryParameters().entrySet(), parameters::add);
     }
 
     //Get all the body params for a specific method
