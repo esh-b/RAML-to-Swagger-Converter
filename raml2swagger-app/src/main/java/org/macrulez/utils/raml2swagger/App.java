@@ -77,7 +77,6 @@ public class App {
         if (outputFileName == null) {
             int index = inputFileName.lastIndexOf('.');
             outputFileName = inputFileName.substring(0, index) + ".json";
-            LOGGER.info("Output file is: {}", outputFileName);
         }
 
         try {
@@ -87,6 +86,7 @@ public class App {
             outputStream = System.out;
         }
 
+        LOGGER.info("Output file is: {}", outputFileName);
         return outputStream;
     }
 }
