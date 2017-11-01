@@ -1,0 +1,372 @@
+#%RAML 0.8
+---
+
+title: Sample Product API
+version: 0.6
+baseUri: http://www.example.org/api/product/{version}
+protocols: [ HTTP, HTTPS ]
+mediaType: application/json
+documentation:
+  - title: Product API
+    content: Sample cars
+
+/cache:
+  /status:
+    get:
+      description: Cache entries
+      responses:
+        200:
+          body:
+            example: lol
+  /clear:
+    get:
+      description: Clear cache entries
+      queryParameters:
+        all:
+          description: Clear all entries
+          type: boolean
+        stem:
+          description: Clear all entries by URI
+        key:
+          description: Clear one entry by its key
+        context:
+          enum: [preview, publish]
+      responses:
+        200:
+          body:
+            example: lol
+
+/:
+  get:
+    description: API entry point, version 0.6
+/used-families:
+  get:  
+    description: TBD
+    
+  /{familyName}:
+    get:
+      description: TBD
+    uriParameters:
+      familyName:
+        description: Family Name
+        type: string
+        example: 'mustang'
+        
+    /{externalId}/{type}:
+      get:
+        description: TBD
+      uriParameters:
+        externalId:
+          description: Car model ID
+          type: integer
+          example: 1151
+        type:
+          description: Action to perform
+          enum: [add, remove]
+          
+    /{modelName}/{type}:
+      get:
+        description: TBD
+      uriParameters:
+        modelName:
+          description: Car model name
+          type: string
+          example: 'mustang'
+        type:
+          description: Action to perform
+          enum: [add, remove]
+          
+/current-and-forthcoming-models:
+  get:
+    description: TBD
+    
+/modelsWithHeroOffers:
+  get:
+    description: TBD
+    
+/models:      
+  get:
+    description: TBD
+    
+  /stockonly-and-current:
+    get:
+      description: TBD
+      
+  /current-forthcoming/{externalId}:
+    get:
+      description: TBD
+    uriParameters:
+      externalId:
+        description: Car model ID
+        type: integer
+        example: 1151
+        
+  /current-forthcoming/{modelName}:
+    get:
+      description: TBD
+    uriParameters:
+      modelName:
+        description: Car model name
+        type: string
+        example: 'mustang'
+        
+  /discontinued-stockonly-and-current:
+    get:
+      description: TBD
+      
+  /discontinued-stockonly-and-current/{externalId}:
+    get:
+      description: TBD
+    uriParameters:
+      externalId:
+        description: Car model ID
+        type: integer
+        example: 1151
+        
+  /discontinued-stockonly-and-current/{modelName}:
+    get:
+      description: TBD
+    uriParameters:
+      modelName:
+        description: Car model name
+        type: string
+        example: 'mustang'
+        
+  /{externalId}:
+    get:
+      description: TBD
+    uriParameters:
+      externalId:
+        description: Car model ID
+        type: integer
+        example: 1151
+        
+    /trims:
+      get:
+        description: TBD
+        
+    /currentTrims:
+      get:
+        description: TBD
+        
+    /standardSpecOptions:
+      get:
+        description: TBD
+        
+    /derivativeOptionGroupConfigs:
+      get:
+        description: TBD
+        
+    /currentDerivatives:
+      get:
+        description: TBD
+        
+    /derivativeOptions:
+      get:
+        description: TBD
+        
+    /derivativeFeatureCombos/{featureList}:
+      get:
+        description: TBD
+      uriParameters:
+        featureList:
+          description: Dot separated list of features.
+          example: 'vedBand.fuelType'
+          type: string
+          
+    /offers:
+      get:
+        description: TBD
+        
+    /hero/paints:
+      get:
+        description: TBD
+        
+    /hierarchy:
+      get:
+        description: TBD
+        
+  /{modelName}:
+    get:
+      description: TBD
+    uriParameters:
+      modelName:
+        description: Car model name
+        type: string
+        example: 'mustang'
+        
+    /trims:
+      get:
+        description: TBD
+        
+    /currentTrims:
+      get:
+        description: TBD
+        
+    /standardSpecOptions:
+      get:
+        description: TBD
+        
+    /derivativeOptions:
+      get:
+        description: TBD
+        
+    /offers:
+      get:
+        description: TBD
+        
+  /validate/{externalId}:
+    get:
+      description: TBD
+    uriParameters:
+      externalId:
+        description: Car model ID
+        type: integer
+        example: 1151
+        
+  /validate/{modelName}:
+    get:
+      description: TBD
+    uriParameters:
+      modelName:
+        description: Car model name
+        type: string
+        example: 'mustang'
+        
+  /trims/derivatives:
+    get:
+      description: TBD
+      
+    /mfrcode/{manufacturerCode}:
+      get:
+        description: TBD
+      uriParameters:
+        manufacturerCode:
+          type: string
+          example: '138TGS3PLAPLREYNSU12WZRC0TD9IE'
+
+/mms:
+  get:
+    description: TBD
+    
+  /models:
+    get:
+      description: TBD
+      
+    /{externalId}:
+      get:
+        description: TBD
+      uriParameters:
+        externalId:
+          description: Car model ID
+          type: integer
+          example: 1151
+          
+/trims:
+  get:
+    description: TBD
+    
+  /{externalId}:
+    get:
+      description: TBD
+    uriParameters:
+      externalId:
+        description: Car model ID
+        type: integer
+        example: 1151
+        
+    /derivatives:
+      get:
+        description: TBD
+        
+    /currentDerivatives:
+      get:
+        description: TBD
+        
+    /uspOptions:
+      get:
+        description: TBD
+        
+    /standardSpecOptions:
+      get:
+        description: TBD
+        
+    /paints:
+      get:
+        description: TBD
+        
+/derivatives:
+  get:
+    description: TBD
+    
+  /{externalId}:
+    get:
+      description: TBD
+    uriParameters:
+      externalId:
+        description: Car model ID
+        type: integer
+        example: 1151
+        
+    /status:
+      get:
+        description: TBD
+        
+    /options:
+      get:
+        description: TBD
+        
+      /{optionExternalId}/rules:
+        get:
+          description: TBD
+        uriParameters:
+          optionExternalId:
+            description: Derivative option ID
+            type: integer
+            example: 2402
+            
+    /offers:
+      get:
+        description: TBD
+        
+/offers:
+  get:
+    description: TBD
+    
+  /{offerExternalId}:
+    get:
+      description: TBD
+    uriParameters:
+      offerExternalId:
+        description: Offer ID
+        type: integer
+        example: 523
+        
+  /{offerTypeName}:
+    get:
+      description: TBD
+    uriParameters:
+      offerTypeName:
+        description: Offer type
+        required: true
+        example: 'finance-advanced'
+        
+/vedBands:
+  get:
+    description: TBD
+    
+/fuelTypes:
+  get:
+    description: TBD
+    
+/numberOfDoors:
+  get:
+    description: TBD
+    
+/transmissionTypes:
+  get:
+    description: TBD
+    
+/bodyStyleTypes:
+  get:
+    description: TBD
