@@ -93,7 +93,8 @@ public class RAMLtoSwaggerTest {
 
         Map<String, Object> paths = (Map<String, Object>)json.get("paths");
         Map<String, Object> path = (Map<String, Object>)paths.get("/{version}/used-families/{familyName}/{modelName}/{type}");
-        List<Map<String, Object>> parameters = (List<Map<String, Object>>)path.get("parameters");
+        Map<String, Object> method = (Map<String, Object>)path.get("get");
+        List<Map<String, Object>> parameters = (List<Map<String, Object>>)method.get("parameters");
         Assert.assertEquals("There should be 3 parameters", 3, parameters.size());
         Assert.assertEquals("Parameter type should be 'query'", "path", parameters.get(0).get("in"));
     }
@@ -113,7 +114,8 @@ public class RAMLtoSwaggerTest {
 
         Map<String, Object> paths = (Map<String, Object>)json.get("paths");
         Map<String, Object> path = (Map<String, Object>)paths.get("/{version}/models/{externalId}/derivativeFeatureCombos/{featureList}");
-        List<Map<String, Object>> parameters = (List<Map<String, Object>>)path.get("parameters");
+        Map<String, Object> method = (Map<String, Object>)path.get("get");
+        List<Map<String, Object>> parameters = (List<Map<String, Object>>)method.get("parameters");
         Assert.assertEquals("There should be 2 parameters", 2, parameters.size());
     }
 

@@ -435,12 +435,9 @@ class RAMLtoSwagger implements Constants {
 
             JSONObject methodsList = new JSONObject();
 
-            //Put the path params of the resource
-            getPathParams(map, methodsList);
-
             //Iterate for every method of the resource
             for (Map.Entry<ActionType, Action> action : resourceEntry.getValue().getActions().entrySet()) {
-                getMethodsDescription(methodsList, action);
+                getMethodsDescription(methodsList, action, map);
             }
 
             apiMap.put(resourceEntry.getValue().getUri(), methodsList);
@@ -451,7 +448,7 @@ class RAMLtoSwagger implements Constants {
     }
 
     //Write the details relating to the method
-    private void getMethodsDescription(JSONObject operations, Map.Entry<ActionType, Action> action) {
+    private void getMethodsDescription(JSONObject operations, Map.Entry<ActionType, Action> action, HashMap<String, UriParameter> map) {
         JSONObject operation = new JSONObject();
         try {
 
@@ -471,6 +468,7 @@ class RAMLtoSwagger implements Constants {
             getHeaderParams(action, parameters);
             getQueryParams(action, parameters);
             getBodyParams(action, parameters);
+            getPathParams(map.entrySet(), parameters);
 
             if (parameters.size() > 0) {
                 operation.put(PARAMETERS_PARAM_KEY, parameters);
@@ -552,15 +550,10 @@ class RAMLtoSwagger implements Constants {
     // ---- The below code are the simplified version of their former implementation removing 3-times code duplication
 
     //Get all the path(URI) parameters for a specific method
-    private void getPathParams(Map<String, UriParameter> uriParams, JSONObject parameters)
+    private void getPathParams(Set<Map.Entry<String, UriParameter>> entries, Collection<JSONObject> parameters)
             throws JSONException {
 
-        JSONArray jsonArray = new JSONArray();
-        getParams(uriParams.entrySet(), PARAMTYPE_PATH, jsonArray::put);
-
-        if (jsonArray.length() > 0) {
-            parameters.put("parameters", jsonArray);
-        }
+        getParams(entries, PARAMTYPE_PATH, parameters::add);
     }
 
     //Get all the header params for a specific method
