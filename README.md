@@ -1,7 +1,8 @@
 # RAML-to-Swagger-Converter
 
 ## About the project
-This repository contains a java project that converts RAML v0.8 API definition to Swagger v2.0 definition. 
+This repository contains a java project that converts RAML v0.8 API definition to Swagger v2.0 definition. It contains
+a standalone application for such conversion and also support using the converter as a library within your project.
 For more info on swagger definitions, [Click here](https://swagger.io/docs/). For RAML docs, [Click here](https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md)
 
 ## Steps to run the utility
