@@ -526,7 +526,7 @@ class RAMLtoSwagger implements Constants {
     // safe generalization can be made. The target collection/store is done using functional programing principles by
     // passing in the storing function. Later on lambda expressions or simple function references can be used in an
     // elegant way.
-    private <T extends AbstractParam> void getParams(Set<Map.Entry<String, T>> entries, Consumer<JSONObject> store) throws JSONException {
+    private <T extends AbstractParam> void getParams(Set<Map.Entry<String, T>> entries, String paramType, Consumer<JSONObject> store) throws JSONException {
         for (Map.Entry<String, T> entry : entries) {
 
             HashMap<String, Object> values = new HashMap<>();
@@ -543,7 +543,7 @@ class RAMLtoSwagger implements Constants {
             values.put(EXAMPLE_MAP_KEY, entry.getValue().getExample());
             values.put(PATTERN_MAP_KEY, entry.getValue().getPattern());
             values.put(REPEAT_MAP_KEY, entry.getValue().isRepeat());
-            values.put(PARAMTYPE_MAP_KEY, PARAMTYPE_HEADER);
+            values.put(PARAMTYPE_MAP_KEY, paramType);
 
             // Calling the passed in store function. Note that not a structure is passed in, but a function. See
             // functional programing principles in Java.
@@ -558,7 +558,7 @@ class RAMLtoSwagger implements Constants {
             throws JSONException {
 
         JSONArray jsonArray = new JSONArray();
-        getParams(uriParams.entrySet(), jsonArray::put);
+        getParams(uriParams.entrySet(), PARAMTYPE_PATH, jsonArray::put);
 
         if (jsonArray.length() > 0) {
             parameters.put("parameters", jsonArray);
@@ -569,14 +569,14 @@ class RAMLtoSwagger implements Constants {
     private void getHeaderParams(Map.Entry<ActionType, Action> action, Collection<JSONObject> parameters)
             throws JSONException {
 
-        getParams(action.getValue().getHeaders().entrySet(), parameters::add);
+        getParams(action.getValue().getHeaders().entrySet(), PARAMTYPE_HEADER, parameters::add);
     }
 
     //Get all the query params for a specific method
     private void getQueryParams(Map.Entry<ActionType, Action> action, Collection<JSONObject> parameters)
             throws JSONException {
 
-        getParams(action.getValue().getQueryParameters().entrySet(), parameters::add);
+        getParams(action.getValue().getQueryParameters().entrySet(), PARAMTYPE_QUERY, parameters::add);
     }
 
     //Get all the body params for a specific method
