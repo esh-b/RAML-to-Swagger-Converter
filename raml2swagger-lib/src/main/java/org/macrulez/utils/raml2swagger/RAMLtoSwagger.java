@@ -28,6 +28,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
 import org.raml.model.parameter.UriParameter;
+import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlDocumentBuilder;
 
 import java.io.ByteArrayInputStream;
@@ -353,16 +354,30 @@ class RAMLtoSwagger implements Constants {
 
     @SuppressWarnings("WeakerAccess, unused")
     public String convertToSwagger(String raml) {
-        return convertToSwagger(new ByteArrayInputStream(raml.getBytes()));
+        return convertToSwagger(raml, null);
+    }
+
+    @SuppressWarnings("WeakerAccess, unused")
+    public String convertToSwagger(String raml, ResourceLoader resourceLoader) {
+        return convertToSwagger(new ByteArrayInputStream(raml.getBytes()), resourceLoader);
+    }
+
+    @SuppressWarnings("WeakerAccess, unused")
+    public String convertToSwagger(InputStream input) {
+        return convertToSwagger(input, null);
     }
 
     //Method called to convert RAML to Swagger
     @SuppressWarnings("WeakerAccess, unused")
-    public String convertToSwagger(InputStream input) {
+    public String convertToSwagger(InputStream input, ResourceLoader resourceLoader) {
 
         //Pass the file stream to the RAML parser
         swaggerJSON = new JSONObject();
-        raml = new RamlDocumentBuilder().build(input);
+        if (resourceLoader != null) {
+            raml = new RamlDocumentBuilder(resourceLoader).build(input);
+        } else {
+            raml = new RamlDocumentBuilder().build(input);
+        }
 
         try {
             //Swagger version

@@ -21,6 +21,9 @@
 package org.macrulez.utils.raml2swagger;
 
 import lombok.extern.slf4j.Slf4j;
+import org.raml.parser.loader.CompositeResourceLoader;
+import org.raml.parser.loader.FileResourceLoader;
+import org.raml.parser.loader.UrlResourceLoader;
 
 import java.io.*;
 
@@ -54,7 +57,7 @@ public class App {
             LOGGER.info("Converting {}...", inputFileName);
 
             try (InputStream fileStream = new FileInputStream(new File(inputFileName))) {
-                json = converter.convertToSwagger(fileStream);
+                json = converter.convertToSwagger(fileStream, new CompositeResourceLoader(new UrlResourceLoader(), new FileResourceLoader(".")));
             }
 
             if (json != null) {
