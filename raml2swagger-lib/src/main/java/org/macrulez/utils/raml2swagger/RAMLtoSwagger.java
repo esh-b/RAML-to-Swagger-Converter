@@ -28,9 +28,11 @@ import org.codehaus.jettison.json.JSONObject;
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
 import org.raml.model.parameter.UriParameter;
+import org.raml.parser.loader.ResourceLoader;
 import org.raml.parser.visitor.RamlDocumentBuilder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -338,38 +340,8 @@ class RAMLtoSwagger implements Constants {
         swaggerJSON.put(PATHSVARIABLE_PARAM_KEY, apiList);
     }
 
-    //Method called to convert RAML to Swagger
-    void convertToJSON(String filePath) throws IOException, JSONException {
-
-        //Get the file stream from the file which is then passed as parameter to the RAML parser
-        try (InputStream fileStream = new FileInputStream(new File(filePath))) {
-
-            //Pass the file stream to the RAML parser
-            swaggerJSON = new JSONObject();
-            raml = new RamlDocumentBuilder().build(fileStream);
-        }
-
-        //Swagger version
-        putSwaggerHeader();
-
-        //All the API info
-        getAPIInfo();
-
-        //All the definitions
-        getDefinitions();
-
-        //All the resources
-        getResources();
-
-        //All the security schemes
-        getSecuritySchemes();
-
-        //Process the json string - unescaping special chars and then, write to a file
-        postProcessString(swaggerJSON.toString(), filePath);
-    }
-
-    //Post process the json string like unescaping special chars (if any) and then, write to a file
-    private void postProcessString(String json, String fileName) {
+    //Post process the json string like unescaping special chars (if any)
+    private String postProcessString(String json) {
         String result = "";
         try {
             result = (new JSONObject(json)).toString(2).replace("\\/", "/");
@@ -377,16 +349,57 @@ class RAMLtoSwagger implements Constants {
             LOGGER.error("JSON error", e);
         }
 
-        //Write the string onto a file
-        try {
-            int index = fileName.lastIndexOf('.');
-            PrintWriter writer = new PrintWriter(fileName.substring(0, index) + ".json");
-            writer.println(result);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            LOGGER.error("I/O error", e);
+        return result;
+    }
+
+    @SuppressWarnings("WeakerAccess, unused")
+    public String convertToSwagger(String raml) {
+        return convertToSwagger(raml, null);
+    }
+
+    @SuppressWarnings("WeakerAccess, unused")
+    public String convertToSwagger(String raml, ResourceLoader resourceLoader) {
+        return convertToSwagger(new ByteArrayInputStream(raml.getBytes()), resourceLoader);
+    }
+
+    @SuppressWarnings("WeakerAccess, unused")
+    public String convertToSwagger(InputStream input) {
+        return convertToSwagger(input, null);
+    }
+
+    //Method called to convert RAML to Swagger
+    @SuppressWarnings("WeakerAccess, unused")
+    public String convertToSwagger(InputStream input, ResourceLoader resourceLoader) {
+
+        //Pass the file stream to the RAML parser
+        swaggerJSON = new JSONObject();
+        if (resourceLoader != null) {
+            raml = new RamlDocumentBuilder(resourceLoader).build(input);
+        } else {
+            raml = new RamlDocumentBuilder().build(input);
         }
+
+        try {
+            //Swagger version
+            putSwaggerHeader();
+
+            //All the API info
+            getAPIInfo();
+
+            //All the definitions
+            getDefinitions();
+
+            //All the resources
+            getResources();
+
+            //All the security schemes
+            getSecuritySchemes();
+        } catch (JSONException e) {
+            LOGGER.error("Error processing the RAML file");
+            return null;
+        }
+
+        return postProcessString(swaggerJSON.toString());
     }
 
     //Method which recursively gets all the data for every resource
@@ -437,12 +450,9 @@ class RAMLtoSwagger implements Constants {
 
             JSONObject methodsList = new JSONObject();
 
-            //Put the path params of the resource
-            getPathParams(map, methodsList);
-
             //Iterate for every method of the resource
             for (Map.Entry<ActionType, Action> action : resourceEntry.getValue().getActions().entrySet()) {
-                getMethodsDescription(methodsList, action);
+                getMethodsDescription(methodsList, action, map);
             }
 
             apiMap.put(resourceEntry.getValue().getUri(), methodsList);
@@ -453,7 +463,7 @@ class RAMLtoSwagger implements Constants {
     }
 
     //Write the details relating to the method
-    private void getMethodsDescription(JSONObject operations, Map.Entry<ActionType, Action> action) {
+    private void getMethodsDescription(JSONObject operations, Map.Entry<ActionType, Action> action, HashMap<String, UriParameter> map) {
         JSONObject operation = new JSONObject();
         try {
 
@@ -473,6 +483,7 @@ class RAMLtoSwagger implements Constants {
             getHeaderParams(action, parameters);
             getQueryParams(action, parameters);
             getBodyParams(action, parameters);
+            getPathParams(map.entrySet(), parameters);
 
             if (parameters.size() > 0) {
                 operation.put(PARAMETERS_PARAM_KEY, parameters);
@@ -526,7 +537,7 @@ class RAMLtoSwagger implements Constants {
     // safe generalization can be made. The target collection/store is done using functional programing principles by
     // passing in the storing function. Later on lambda expressions or simple function references can be used in an
     // elegant way.
-    private <T extends AbstractParam> void getParams(Set<Map.Entry<String, T>> entries, Consumer<JSONObject> store) throws JSONException {
+    private <T extends AbstractParam> void getParams(Set<Map.Entry<String, T>> entries, String paramType, Consumer<JSONObject> store) throws JSONException {
         for (Map.Entry<String, T> entry : entries) {
 
             HashMap<String, Object> values = new HashMap<>();
@@ -543,7 +554,7 @@ class RAMLtoSwagger implements Constants {
             values.put(EXAMPLE_MAP_KEY, entry.getValue().getExample());
             values.put(PATTERN_MAP_KEY, entry.getValue().getPattern());
             values.put(REPEAT_MAP_KEY, entry.getValue().isRepeat());
-            values.put(PARAMTYPE_MAP_KEY, PARAMTYPE_HEADER);
+            values.put(PARAMTYPE_MAP_KEY, paramType);
 
             // Calling the passed in store function. Note that not a structure is passed in, but a function. See
             // functional programing principles in Java.
@@ -554,29 +565,24 @@ class RAMLtoSwagger implements Constants {
     // ---- The below code are the simplified version of their former implementation removing 3-times code duplication
 
     //Get all the path(URI) parameters for a specific method
-    private void getPathParams(Map<String, UriParameter> uriParams, JSONObject parameters)
+    private void getPathParams(Set<Map.Entry<String, UriParameter>> entries, Collection<JSONObject> parameters)
             throws JSONException {
 
-        JSONArray jsonArray = new JSONArray();
-        getParams(uriParams.entrySet(), jsonArray::put);
-
-        if (jsonArray.length() > 0) {
-            parameters.put("parameters", jsonArray);
-        }
+        getParams(entries, PARAMTYPE_PATH, parameters::add);
     }
 
     //Get all the header params for a specific method
     private void getHeaderParams(Map.Entry<ActionType, Action> action, Collection<JSONObject> parameters)
             throws JSONException {
 
-        getParams(action.getValue().getHeaders().entrySet(), parameters::add);
+        getParams(action.getValue().getHeaders().entrySet(), PARAMTYPE_HEADER, parameters::add);
     }
 
     //Get all the query params for a specific method
     private void getQueryParams(Map.Entry<ActionType, Action> action, Collection<JSONObject> parameters)
             throws JSONException {
 
-        getParams(action.getValue().getQueryParameters().entrySet(), parameters::add);
+        getParams(action.getValue().getQueryParameters().entrySet(), PARAMTYPE_QUERY, parameters::add);
     }
 
     //Get all the body params for a specific method
