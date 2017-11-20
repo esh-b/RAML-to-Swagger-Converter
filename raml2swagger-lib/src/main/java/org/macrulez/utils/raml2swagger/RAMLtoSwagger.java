@@ -591,14 +591,18 @@ class RAMLtoSwagger implements Constants {
 
         for (Map.Entry<String, MimeType> mimeType : action.getValue().getBody().entrySet()) {
             String schema = "";
+            String example = "";
             if (mimeType.getValue().getSchema() != null) {
                 schema = mimeType.getValue().getSchema();
             }
-
+            if (mimeType.getValue().getExample() != null) {
+                example = mimeType.getValue().getExample();
+            }
             HashMap<String, Object> values = new HashMap<>();
             values.put(NAME_MAP_KEY, "body");
             values.put(ISREQD_MAP_KEY, Boolean.TRUE);
             values.put(SCHEMA_MAP_KEY, schema);
+            values.put(EXAMPLES_PARAM_KEY, example);
             values.put(PARAMTYPE_MAP_KEY, PARAMTYPE_BODY);
 
             JSONObject qp = getParametersInfo(values);
@@ -613,12 +617,14 @@ class RAMLtoSwagger implements Constants {
 
             //Get the response description
             JSONObject fields = new JSONObject();
+            JSONObject examples = new JSONObject();
             String description = responsesMap.getValue().getDescription() == null ? getResponseMessage(Integer.valueOf(responsesMap.getKey())) : responsesMap.getValue().getDescription();
             fields.put(DESCRIPTION_PARAM_KEY, description);
 
             //Get the response schema
             for (Map.Entry<String, MimeType> me : responsesMap.getValue().getBody().entrySet()) {
                 String schema = me.getValue().getSchema();
+                String example = me.getValue().getExample();
 
                 //Suppose schema is well-formed
                 if (schema != null && schema.length() > 0) {
@@ -635,7 +641,23 @@ class RAMLtoSwagger implements Constants {
                         fields.put(SCHEMA_PARAM_KEY, jsonObj);
                     }
                 }
+
+                if (example != null && example.length() > 0) {
+                    // If example is JSON, let's format it
+                    if (MIMETYPE_JSON.equals(me.getKey())) {
+                        JSONObject jsonObj = new JSONObject(example);
+                        examples.put(me.getKey(), jsonObj);
+                    } else {
+                        // If not, just add it as text
+                        examples.put(me.getKey(), example);
+                    }
+                }
             }
+
+            // If we have examples, add it
+            if (examples.length() > 0)
+                fields.put(EXAMPLES_PARAM_KEY, examples);
+
             retObj.put(responsesMap.getKey(), fields);
         }
         return retObj;
@@ -666,6 +688,11 @@ class RAMLtoSwagger implements Constants {
         //Incase the description field is defined
         if (values.get(DESC_MAP_KEY) != null) {
             qp.put(DESCRIPTION_PARAM_KEY, values.get(DESC_MAP_KEY));
+        }
+
+        //Incase the example field is defined
+        if (values.get(EXAMPLE_MAP_KEY) != null) {
+            qp.put(EXAMPLE_MAP_KEY, values.get(EXAMPLE_MAP_KEY));
         }
 
         //Incase the Required field is defined

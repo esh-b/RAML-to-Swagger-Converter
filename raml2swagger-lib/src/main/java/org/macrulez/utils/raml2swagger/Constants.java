@@ -38,6 +38,7 @@ interface Constants {
 
     String PARAMETERS_PARAM_KEY = "parameters";
     String TYPE_PARAM_KEY = "type";
+    String EXAMPLES_PARAM_KEY = "examples";
     String DESCRIPTION_PARAM_KEY = "description";
     String PRODUCES_MEDIATYPE_PARAM_KEY = "produces";
     String CONSUMES_MEDIATYPE_PARAM_KEY = "consumes";
@@ -90,7 +91,7 @@ interface Constants {
     String MIN_MAP_KEY = "min";
     String MAXLEN_MAP_KEY = "maxLen";
     String MINLEN_MAP_KEY = "minLen";
-    String EXAMPLE_MAP_KEY = "ex";
+    String EXAMPLE_MAP_KEY = "example";
     String PATTERN_MAP_KEY = "ptrn";
     String REPEAT_MAP_KEY = "repeat";
     String PARAMTYPE_MAP_KEY = "paramType";
