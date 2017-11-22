@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.macrulez.utils</groupId>
         <artifactId>raml2swagger-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -33,24 +33,15 @@
             <version>1.9.3</version>
         </dependency>
         <dependency>
-            <groupId>com.mulesoft.jaxrs.raml.generator</groupId>
+            <groupId>org.raml</groupId>
             <artifactId>com.mulesoft.jaxrs.raml.generator</artifactId>
-            <version>1.3.2</version>
+            <version>1.3.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>jlibs</groupId>
-                    <artifactId>jlibs-xml</artifactId>
-                </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.9</version>
         </dependency>
 
         <!-- Logging -->
@@ -81,12 +72,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>MuleSoft</id>
-            <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>
-        </repository>
-    </repositories>
 
 </project>

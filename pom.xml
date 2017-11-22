@@ -3,7 +3,7 @@
     <groupId>org.macrulez.utils</groupId>
     <artifactId>raml2swagger-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <name>RAML 2 Swagger Converter</name>
 
     <scm>
